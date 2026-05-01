@@ -1,0 +1,135 @@
+from datetime import datetime
+
+# Store events
+calendar_events = {}
+
+# Validate date
+def is_valid_date(year, month, day):
+    try:
+        date = datetime(year, month, day)
+        if 2026 <= year <= 2028:
+            return True
+        else:
+            print("❌ Year must be between 2026 and 2028.")
+            return False
+    except ValueError:
+        print("❌ Invalid date.")
+        return False
+
+# Format date nicely
+def format_date(year, month, day):
+    return datetime(year, month, day).strftime("%B %d, %Y")
+
+# Add event
+def add_event():
+    print("\n--- ADD AN EVENT ----")
+    try:
+        year = int(input("Year (2026-2028): "))
+        month = int(input("Month (1-12): "))
+        day = int(input("Day: "))
+    except:
+        print("❌ Invalid input.")
+        return
+
+    if not is_valid_date(year, month, day):
+        return
+
+    event = input("Enter event name: ")
+
+    date_key = f"{year}-{month:02d}-{day:02d}"
+    calendar_events.setdefault(date_key, []).append(event)
+
+    print(f"\n[SUCCESS] Event '{event}' added on {format_date(year, month, day)}!")
+
+# View events on specific date
+def view_events_on_date():
+    print("\n--- VIEW EVENTS ON A DATE ----")
+    try:
+        year = int(input("Year: "))
+        month = int(input("Month: "))
+        day = int(input("Day: "))
+    except:
+        print("❌ Invalid input.")
+        return
+
+    date_key = f"{year}-{month:02d}-{day:02d}"
+
+    if date_key in calendar_events:
+        print(f"\nEvents on {format_date(year, month, day)}:")
+        for i, event in enumerate(calendar_events[date_key], 1):
+            print(f"{i}. {event}")
+    else:
+        print("No events found.")
+
+# View all events
+def view_all_events():
+    print("\n--- ALL EVENTS ----")
+    if not calendar_events:
+        print("No events available.")
+        return
+
+    for date in sorted(calendar_events):
+        dt = datetime.strptime(date, "%Y-%m-%d")
+        print(f"\n{dt.strftime('%B %d, %Y')}:")
+        for event in calendar_events[date]:
+            print(f"- {event}")
+
+# Delete event
+def delete_event():
+    print("\n--- DELETE AN EVENT ----")
+    try:
+        year = int(input("Year: "))
+        month = int(input("Month: "))
+        day = int(input("Day: "))
+    except:
+        print("❌ Invalid input.")
+        return
+
+    date_key = f"{year}-{month:02d}-{day:02d}"
+
+    if date_key not in calendar_events:
+        print("No events found.")
+        return
+
+    for i, event in enumerate(calendar_events[date_key], 1):
+        print(f"{i}. {event}")
+
+    try:
+        choice = int(input("Select event number to delete: ")) - 1
+        removed = calendar_events[date_key].pop(choice)
+
+        if not calendar_events[date_key]:
+            del calendar_events[date_key]
+
+        print(f"[DELETED] Event '{removed}' removed.")
+    except:
+        print("❌ Invalid selection.")
+
+# Main menu
+def main():
+    while True:
+        print("\n---- MAIN MENU ----")
+        print("1. Add an Event")
+        print("2. View Events on a Date")
+        print("3. View All Events")
+        print("4. Delete an Event")
+        print("5. Exit")
+
+        choice = input("\nEnter your choice (1-5): ")
+
+        if choice == "1":
+            add_event()
+        elif choice == "2":
+            view_events_on_date()
+        elif choice == "3":
+            view_all_events()
+        elif choice == "4":
+            delete_event()
+        elif choice == "5":
+            print("Exiting program.")
+            break
+        else:
+            print("❌ Invalid choice.")
+
+if _name_ == "_main_":
+    main()
