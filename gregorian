@@ -1,0 +1,179 @@
+import calendar
+
+events = {}
+
+month_names = [
+    "", "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+]
+
+
+def is_valid_date(year, month, day):
+    if year < 2026 or year > 2028:
+        return False
+    if month < 1 or month > 12:
+        return False
+    max_day = calendar.monthrange(year, month)[1]
+    if day < 1 or day > max_day:
+        return False
+    return True
+
+
+def get_date_input():
+    print("\n--- Enter the date ---")
+
+    while True:
+        try:
+            year = int(input("Year (2026-2028): "))
+            if 2026 <= year <= 2028:
+                break
+            else:
+                print("[ERROR] Year must be between 2026 and 2028 only. Try again.")
+        except ValueError:
+            print("[ERROR] Please enter a valid number for year.")
+
+    while True:
+        try:
+            month = int(input("Month (1-12): "))
+            if 1 <= month <= 12:
+                break
+            else:
+                print("[ERROR] Month must be between 1 and 12. Try again.")
+        except ValueError:
+            print("[ERROR] That's not a valid number. Try again.")
+
+    max_day = calendar.monthrange(year, month)[1]
+    while True:
+        try:
+            day = int(input(f"Day (1-{max_day}): "))
+            if 1 <= day <= max_day:
+                break
+            else:
+                print(f"[ERROR] Day must be between 1 and {max_day} for {month_names[month]}. Try again.")
+        except ValueError:
+            print("[ERROR] Please enter a valid number for day.")
+
+    return year, month, day
+
+
+def add_event():
+    print("\n---- ADD AN EVENT ----")
+
+    year, month, day = get_date_input()
+
+    event_name = input("Enter event name: ").strip()
+
+    if event_name == "":
+        print("[ERROR] Event name cannot be empty!")
+        return
+
+    date_key = f"{year}-{month:02d}-{day:02d}"
+
+    if date_key not in events:
+        events[date_key] = []
+
+    events[date_key].append(event_name)
+
+    print(f"\n[SUCCESS] Event '{event_name}' added on {month_names[month]} {day}, {year}!")
+
+
+def view_events_on_date():
+    print("\n---- VIEW EVENTS ON A DATE ----")
+
+    year, month, day = get_date_input()
+
+    date_key = f"{year}-{month:02d}-{day:02d}"
+
+    print(f"\nEvents on {month_names[month]} {day}, {year}:")
+    print("-" * 35)
+
+    if date_key in events and len(events[date_key]) > 0:
+        for i, event in enumerate(events[date_key], 1):
+            print(f"  {i}. {event}")
+    else:
+        print("  No events found on this date.")
+
+
+def view_all_events():
+    print("\n---- ALL EVENTS ----")
+    print("-" * 35)
+
+    if len(events) == 0:
+        print("  No events added yet.")
+        return
+
+    sorted_dates = sorted(events.keys())
+
+    for date_key in sorted_dates:
+        parts = date_key.split("-")
+        year = int(parts[0])
+        month = int(parts[1])
+        day = int(parts[2])
+
+        print(f"\n{month_names[month]} {day}, {year}:")
+        for i, event in enumerate(events[date_key], 1):
+            print(f"  {i}. {event}")
+
+
+def delete_event():
+    print("\n---- DELETE AN EVENT ----")
+
+    year, month, day = get_date_input()
+
+    date_key = f"{year}-{month:02d}-{day:02d}"
+
+    if date_key not in events or len(events[date_key]) == 0:
+        print(f"\n[ERROR] No events found on {month_names[month]} {day}, {year}.")
+        return
+
+    print(f"\nEvents on {month_names[month]} {day}, {year}:")
+    for i, event in enumerate(events[date_key], 1):
+        print(f"  {i}. {event}")
+
+    while True:
+        try:
+            choice = int(input("\nEnter the number of the event to delete: "))
+            if 1 <= choice <= len(events[date_key]):
+                deleted = events[date_key].pop(choice - 1)
+                if len(events[date_key]) == 0:
+                    del events[date_key]
+                print(f"\n[SUCCESS] Event '{deleted}' has been deleted!")
+                break
+            else:
+                print(f"[ERROR] Please enter a number between 1 and {len(events[date_key])}.")
+        except ValueError:
+            print("[ERROR] Please enter a valid number.")
+
+
+def main():
+    print("=" * 40)
+    print("   GREGORIAN CALENDAR EVENT MANAGER")
+    print("         Years: 2026 - 2028")
+    print("=" * 40)
+
+    while True:
+        print("\n---- MAIN MENU ----")
+        print("1. Add an Event")
+        print("2. View Events on a Date")
+        print("3. View All Events")
+        print("4. Delete an Event")
+        print("5. Exit")
+
+        choice = input("\nEnter your choice (1-5): ").strip()
+
+        if choice == "1":
+            add_event()
+        elif choice == "2":
+            view_events_on_date()
+        elif choice == "3":
+            view_all_events()
+        elif choice == "4":
+            delete_event()
+        elif choice == "5":
+            print("\nGoodbye! See you next time 🙂")
+            break
+        else:
+            print("[ERROR] Invalid choice. Please enter a number from 1 to 5 only.")
+
+
+main()
